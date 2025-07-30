@@ -41,7 +41,10 @@ app.use(limiter);
 // Routes
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/contact/admin', require('./routes/adminRoutes'));
-
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true
+}));
 // Default route
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Contact API' });
