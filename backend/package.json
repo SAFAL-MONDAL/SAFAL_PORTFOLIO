@@ -19,8 +19,8 @@
   "start": "node server.js",
   "dev": "vite dev",
   "build": "vite build",
-  "preview": "vite preview",
-  "vercel-build": "npm run build"
+    "preview": "vite preview",
+    "vercel-build": "npm run vercel-build"
 }
   ,
   "dependencies": {
