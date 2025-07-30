@@ -33,12 +33,17 @@ const Contact = () => {
     setErrorMessage('');
 
     try {
-      // Use Vite environment variable with fallback
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
       
-      // Validate form data before submission
-      if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-        throw new Error('All fields are required');
+      // Client-side validation
+      if (!formData.name.trim()) throw new Error('Name is required');
+      if (!formData.email.trim()) throw new Error('Email is required');
+      if (!formData.message.trim()) throw new Error('Message is required');
+      if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
+        throw new Error('Please enter a valid email');
+      }
+      if (formData.message.trim().length < 10) {
+        throw new Error('Message should be at least 10 characters');
       }
 
       const response = await axios.post(
@@ -52,38 +57,35 @@ const Contact = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          timeout: 10000, // 10 seconds timeout
+          timeout: 10000,
         }
       );
-      
-      if (response.status === 201) {
+
+      if (response.status >= 200 && response.status < 300) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', message: '' });
         setTimeout(() => setSubmitStatus('idle'), 3000);
       } else {
-        throw new Error(`Server responded with status: ${response.status}`);
+        throw new Error(response.data?.message || 'Message submission failed');
       }
-    } catch (error) {
-      let errorMsg = 'Failed to send message';
+    } catch (error: unknown) {
+      let errorMsg = 'Failed to send message. Please try again later.';
       
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          // Server responded with a status code outside 2xx
-          errorMsg = error.response.data?.message || 
-                     `Request failed with status ${error.response.status}`;
+        if (error.code === 'ECONNABORTED') {
+          errorMsg = 'Request timeout. Please check your connection.';
+        } else if (error.response) {
+          errorMsg = error.response.data?.error || 
+                    error.response.data?.message || 
+                    `Server error: ${error.response.status}`;
         } else if (error.request) {
-          // No response received
-          errorMsg = 'No response from server. Please check your connection.';
-        } else {
-          // Request setup error
-          errorMsg = error.message;
+          errorMsg = 'Network error. Please check your connection.';
         }
       } else if (error instanceof Error) {
-        // Our custom validation error
         errorMsg = error.message;
       }
 
-      console.error('Form submission error:', error);
+      console.error('Submission error:', error);
       setSubmitStatus('error');
       setErrorMessage(errorMsg);
     }
