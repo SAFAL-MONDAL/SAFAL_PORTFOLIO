@@ -33,7 +33,7 @@ const Contact = () => {
     setErrorMessage('');
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://safalportfolio.vercel.app/';
       
       // Client-side validation
       if (!formData.name.trim()) throw new Error('Name is required');
