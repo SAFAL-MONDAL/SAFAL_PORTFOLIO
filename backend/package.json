@@ -20,7 +20,7 @@
   "dev": "vite dev",
   "build": "vite build",
     "preview": "vite preview",
-    "vercel-build": "npm run vercel-build"
+    "vercel-build": "npm install && npm run vercel-build"
 }
   ,
   "dependencies": {
