@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+  "build": "vite build", 
+  "preview": "vite preview",
+  "vercel-build": "npm run build" ,
     "lint": "eslint . --ext ts,tsx --fix",
-    "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "prebuild": "npm run type-check"
   },
