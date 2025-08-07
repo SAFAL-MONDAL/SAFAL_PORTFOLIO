@@ -1,85 +1,77 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose'; // Added this import
+import connectDB from './config/db.js';
+import contactRoutes from './routes/contactRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
-// Load environment variables
 dotenv.config();
 
-// Connect to database
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Connect to Database
 connectDB();
 
-// Initialize express
-const app = express();
+// Function to create collections if they don't exist
+const createCollections = async () => {
+  try {
+    const db = mongoose.connection.db;
+    
+    // Create collections if they don't exist
+    if (!await db.listCollections({ name: 'admins' }).hasNext()) {
+      await db.createCollection('admins');
+      console.log('Created admins collection');
+    }
+    
+    if (!await db.listCollections({ name: 'messages' }).hasNext()) {
+      await db.createCollection('messages');
+      console.log('Created messages collection');
+    }
+  } catch (err) {
+    console.error('Collection creation error:', err);
+  }
+};
 
-// Enable CORS with proper configuration
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+// Wait for connection then create collections
+mongoose.connection.once('open', createCollections);
 
-// Set security headers
-app.use(helmet());
+// Routes
+app.use('/api/contact', contactRoutes);
+app.use('/api/contact', authRoutes);
 
-// Body parser
-app.use(express.json({ limit: '10kb' }));
-
-// Logging middleware in development
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: 'Too many requests from this IP, please try again later'
-});
-app.use(limiter);
-
-// API Routes
-app.use('/api/v1/contact', require('./routes/contactRoutes'));
-app.use('/api/v1/admin', require('./routes/adminRoutes'));
-
-// Health check endpoint
-app.get('/api/v1/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'API is healthy'
-  });
-});
-
-// Default route
+// Basic route for testing
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Welcome to the server',
-  });
+  res.send('Contact App API');
 });
 
-// Handle 404
-app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} on this server`
-  });
+// Diagnostic endpoint
+app.get('/api/db-status', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    const adminCount = await db.collection('admins')?.countDocuments() || 0;
+    const messageCount = await db.collection('messages')?.countDocuments() || 0;
+    
+    res.json({
+      status: 'Connected',
+      database: mongoose.connection.name,
+      collections: collections.map(c => c.name),
+      counts: {
+        admins: adminCount,
+        messages: messageCount
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Error handler middleware
-app.use(errorHandler);
-
-// Start server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  server.close(() => process.exit(1));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

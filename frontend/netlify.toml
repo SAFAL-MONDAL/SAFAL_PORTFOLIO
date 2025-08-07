@@ -1,0 +1,8 @@
+@"
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18.12.0"
+"@ | Out-File -FilePath netlify.toml -Encoding utf8

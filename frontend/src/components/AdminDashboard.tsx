@@ -38,6 +38,37 @@ const MessageTable = styled.table`
   }
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  alignItems: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: ${({ theme }) => theme.cardBg};
+  color: ${({ theme }) => theme.text};
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+`;
+
+const CloseButton = styled.button`
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: ${({ theme }) => theme.primary};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
 
 type Message = {
   _id: string;
@@ -47,11 +78,16 @@ type Message = {
   createdAt: string;
 };
 
+type LoginData = {
+  username: string;
+  password: string;
+};
+
 const AdminDashboard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [loginData, setLoginData] = useState<LoginData>({ username: '', password: '' });
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
@@ -62,7 +98,7 @@ const AdminDashboard = () => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL || ''}/api/contact/admin/messages`,
+          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/contact/admin/messages`,
           {
             headers: { 
               'x-auth-token': token,
@@ -82,35 +118,22 @@ const AdminDashboard = () => {
     fetchMessages();
   }, []);
 
-  interface LoginData {
-    username: string;
-    password: string;
-  }
-
-  interface LoginResponse {
-    token: string;
-  }
-
-  interface ErrorResponse {
-    message?: string;
-  }
-
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsAuthenticating(true);
     setError('');
     
     try {
-      const res = await axios.post<LoginResponse>(
-        `${import.meta.env.VITE_API_BASE_URL || ''}/api/contact/admin/login`,
+      const res = await axios.post<{ token: string }>(
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/contact/admin/login`,
         loginData
       );
       localStorage.setItem('adminToken', res.data.token);
       window.location.reload();
-    } catch (err: unknown) {
+    } catch (err) {
       setError(
         axios.isAxiosError(err)
-          ? (err.response?.data as ErrorResponse)?.message || 'Invalid credentials'
+          ? err.response?.data?.message || 'Invalid credentials'
           : 'Login failed'
       );
     } finally {
@@ -167,7 +190,21 @@ const AdminDashboard = () => {
 
   return (
     <AdminContainer>
-      
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <button 
+          onClick={handleLogout}
+          style={{
+            background: '#FF3333',
+            color: 'white',
+            padding: '8px 12px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          Logout
+        </button>
+      </div>
       
       {loading ? (
         <p>Loading messages...</p>
@@ -200,52 +237,22 @@ const AdminDashboard = () => {
             </tbody>
           </MessageTable>
 
-         {selectedMessage && (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
-  }}>
-    <div style={{
-      background: '#fff', // Replace with your desired static color or use a variable if available
-      color: '#222', // Replace with your desired static color or use a variable if available
-      padding: '2rem',
-      borderRadius: '8px',
-      maxWidth: '600px',
-      width: '90%'
-    }}>
-      <h3>Message Details</h3>
-      <p><strong>From:</strong> {selectedMessage.name} ({selectedMessage.email})</p>
-      <p><strong>Date:</strong> {new Date(selectedMessage.createdAt).toLocaleString()}</p>
-      <div style={{ marginTop: '1rem' }}>
-        <p><strong>Message:</strong></p>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{selectedMessage.message}</p>
-      </div>
-      <button 
-        onClick={() => setSelectedMessage(null)}
-        style={{
-          marginTop: '1rem',
-          padding: '0.5rem 1rem',
-          background: '#3a7bd5', // You can also use theme.primary here
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
-
+          {selectedMessage && (
+            <ModalOverlay>
+              <ModalContent>
+                <h3>Message Details</h3>
+                <p><strong>From:</strong> {selectedMessage.name} ({selectedMessage.email})</p>
+                <p><strong>Date:</strong> {new Date(selectedMessage.createdAt).toLocaleString()}</p>
+                <div style={{ marginTop: '1rem' }}>
+                  <p><strong>Message:</strong></p>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>{selectedMessage.message}</p>
+                </div>
+                <CloseButton onClick={() => setSelectedMessage(null)}>
+                  Close
+                </CloseButton>
+              </ModalContent>
+            </ModalOverlay>
+          )}
         </>
       )}
     </AdminContainer>

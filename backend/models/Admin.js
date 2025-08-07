@@ -1,53 +1,31 @@
-// models/Admin.js
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-const AdminSchema = new mongoose.Schema({
+const adminSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: [true, 'Please add a username'],
+    required: true,
     unique: true,
-    trim: true,
-    maxlength: [50, 'Username cannot be more than 50 characters']
+    trim: true
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    required: true
   }
 });
 
-// Encrypt password using bcrypt
-AdminSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
+// Hash password before saving
+adminSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
-// Sign JWT and return
-AdminSchema.methods.getSignedJwtToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
+// Method to compare passwords
+adminSchema.methods.comparePassword = async function(candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Match user entered password to hashed password in database
-AdminSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+const Admin = mongoose.model('Admin', adminSchema);
 
-module.exports = mongoose.model('Admin', AdminSchema);
+export default Admin;

@@ -1,16 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      // Options are no longer needed in mongoose 6+
-    });
-
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.log(`Database Name: ${conn.connection.name}`);
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
     process.exit(1);
   }
 };
 
-module.exports = connectDB;
+export default connectDB;

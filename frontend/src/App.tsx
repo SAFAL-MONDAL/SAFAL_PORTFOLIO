@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
-import { Routes, Route } from 'react-router-dom';  // <-- notice: no BrowserRouter here
+import { Routes, Route } from 'react-router-dom';
+import axios from 'axios'; // Added axios import
 // Styles
 import { GlobalStyles } from './styles/GlobalStyles';
 import { lightTheme, darkTheme } from './styles/theme';
@@ -22,6 +23,9 @@ interface ThemeType {
 
 function App() {
   const [theme, setTheme] = useState<ThemeType['light'] | ThemeType['dark']>('dark');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -29,10 +33,17 @@ function App() {
 
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
 
+  // Contact form submission handler
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    axios.post('', { name, email, password })
+      .then(result => console.log(result))
+      .catch(err => console.log(err));
+  };
+
   return (
     <ThemeProvider theme={currentTheme}>
       <GlobalStyles />
-    
       <Header 
         toggleTheme={toggleTheme} 
         currentTheme={theme} 
@@ -42,18 +53,22 @@ function App() {
         <Routes>
           <Route path="/" element={
             <>
-            
               <Hero />
               <About />
               <Project />
               <Skills />
-              <Contact />
+              <Contact 
+                name={name}
+                email={email}
+                password={password}
+                setName={setName}
+                setEmail={setEmail}
+                setPassword={setPassword}
+                handleSubmit={handleSubmit}
+              />
             </>
           } />
-       
-
-       <Route path="/admin" element={<AdminDashboard />} />
-       
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
       

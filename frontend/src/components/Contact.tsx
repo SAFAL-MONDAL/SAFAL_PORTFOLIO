@@ -33,8 +33,14 @@ const Contact = () => {
     setErrorMessage('');
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://safalportfolio.vercel.app/';
-      
+      // Improved URL construction
+      let baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      if (!baseUrl.endsWith('/')) {
+        baseUrl += '/';
+      }
+      const endpoint = 'api/contact/submit'.replace(/^\//, '');
+      const apiUrl = new URL(endpoint, baseUrl).toString();
+
       // Client-side validation
       if (!formData.name.trim()) throw new Error('Name is required');
       if (!formData.email.trim()) throw new Error('Email is required');
@@ -47,7 +53,7 @@ const Contact = () => {
       }
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/contact`,
+        apiUrl,
         {
           name: formData.name.trim(),
           email: formData.email.trim(),
@@ -193,8 +199,7 @@ const Contact = () => {
   );
 };
 
-
-// Styled Components
+// Styled Components (remain exactly the same)
 const ContactSection = styled.section`
   padding: 6.25rem 0;
   background: ${({ theme }) => theme.body};

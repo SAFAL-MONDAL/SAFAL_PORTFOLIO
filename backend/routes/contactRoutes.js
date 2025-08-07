@@ -1,17 +1,10 @@
-const express = require('express');
-const { submitMessage } = require('../controllers/contactController');
-const { check } = require('express-validator');
+import express from 'express';
+import { submitMessage, getMessages } from '../controllers/contactController.js';
+import { auth } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.post(
-  '/',
-  [
-    check('name', 'Name is required').not().isEmpty().trim(),
-    check('email', 'Please include a valid email').isEmail().normalizeEmail(),
-    check('message', 'Message is required').not().isEmpty().trim()
-  ],
-  submitMessage
-);
+router.post('/submit', submitMessage);
+router.get('/admin/messages', auth, getMessages);
 
-module.exports = router;
+export default router;
