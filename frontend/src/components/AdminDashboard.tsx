@@ -125,7 +125,7 @@ const AdminDashboard = () => {
     
     try {
       const res = await axios.post<{ token: string }>(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/contact/admin/login`,
+        `${import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio-backend.onrender.com'}/api/contact/admin/login`,
         loginData
       );
       localStorage.setItem('adminToken', res.data.token);
