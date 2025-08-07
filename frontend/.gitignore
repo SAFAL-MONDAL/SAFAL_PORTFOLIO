@@ -22,13 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-*.json
-tsconfig.json
-tsconfig.app.json
-tsconfig.tsbuildinfo
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-lerna-debug.log
+# Build directories
+build
 coverage
-tsconfig.node.json
+
