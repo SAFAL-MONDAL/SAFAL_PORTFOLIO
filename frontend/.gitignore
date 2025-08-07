@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 *.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.tsbuildinfo
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+lerna-debug.log
+coverage
+tsconfig.node.json
