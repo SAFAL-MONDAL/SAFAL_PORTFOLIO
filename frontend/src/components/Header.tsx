@@ -1,7 +1,9 @@
+// frontend/src/components/Header.tsx
 import { useState, useEffect } from 'react';
 import { FaMoon, FaSun, FaBars, FaTimes } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 // Styled Components
 const HeaderWrapper = styled.header<{ $scrolled: boolean }>`
@@ -15,15 +17,20 @@ const HeaderWrapper = styled.header<{ $scrolled: boolean }>`
   box-shadow: ${({ $scrolled }) => $scrolled ? '0 2px 10px rgba(0, 0, 0, 0.1)' : 'none'};
   transition: all 0.3s ease;
   display: flex;
-  justify-content: space-between; /* Change to space-between to place logo on left and nav on right */
+  justify-content: space-between;
   align-items: center;
 `;
 
-const Logo = styled.a`
+const Logo = styled(Link)`
   font-size: 1.8rem;
   font-weight: 700;
   color: ${({ theme }) => theme.text};
   text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: ${({ theme }) => theme.primary};
+  }
 `;
 
 const NavToggle = styled.button`
@@ -122,9 +129,8 @@ const ThemeToggle = styled.button`
   }
 `;
 
-// New Download CV Button Styled Component
 const DownloadButton = styled.a`
-  display: inline-block; /* Needed for transform to work correctly */
+  display: inline-block;
   background: ${({ theme }) => theme.primary};
   color: white;
   font-weight: 600;
@@ -134,10 +140,9 @@ const DownloadButton = styled.a`
   transition: transform 0.3s ease;
 
   &:hover {
-    transform: scale(1.1); /* Zoom in */
+    transform: scale(1.1);
   }
 `;
-
 
 interface HeaderProps {
   toggleTheme: () => void;
@@ -157,15 +162,13 @@ const Header = ({ toggleTheme, currentTheme }: HeaderProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = ['home', 'about', 'projects', 'skills', 'contact'];
+  const navItems = ['home', 'about', 'projects', 'skills', 'blog', 'contact'];
 
   return (
     <HeaderWrapper $scrolled={scrolled}>
       <div className="container" style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {/* Left side: Logo */}
-        <Logo href="/admin">Safal Mondal</Logo>
+        <Logo to="/admin">Safal Mondal</Logo>
 
-        {/* Right side: NavToggle + Nav */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <NavToggle onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <FaTimes /> : <FaBars />}
@@ -184,7 +187,6 @@ const Header = ({ toggleTheme, currentTheme }: HeaderProps) => {
                 </NavItem>
               ))}
 
-              {/* New Download CV Button */}
               <NavItem>
                 <DownloadButton href="/CV.pdf" download>
                   Download CV

@@ -1,7 +1,9 @@
+// frontend/src/App.tsx
 import { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { Routes, Route } from 'react-router-dom';
-import axios from 'axios'; // Added axios import
+import axios from 'axios';
+
 // Styles
 import { GlobalStyles } from './styles/GlobalStyles';
 import { lightTheme, darkTheme } from './styles/theme';
@@ -12,6 +14,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Project from './components/Project';
 import Skills from './components/Skills';
+import Blog from './components/Blog';
 import Contact from './components/Contact';
 import AdminDashboard from './components/AdminDashboard';
 import Footer from './components/Footer';
@@ -23,9 +26,6 @@ interface ThemeType {
 
 function App() {
   const [theme, setTheme] = useState<ThemeType['light'] | ThemeType['dark']>('dark');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -33,46 +33,32 @@ function App() {
 
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;
 
-  // Contact form submission handler
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    axios.post('', { name, email, password })
-      .then(result => console.log(result))
-      .catch(err => console.log(err));
-  };
-
   return (
     <ThemeProvider theme={currentTheme}>
       <GlobalStyles />
-      <Header 
-        toggleTheme={toggleTheme} 
-        currentTheme={theme} 
-      />
       
-      <main>
-        <Routes>
-          <Route path="/" element={
-            <>
+      <Routes>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/" element={
+          <>
+            <Header 
+              toggleTheme={toggleTheme} 
+              currentTheme={theme} 
+            />
+            
+            <main>
               <Hero />
               <About />
               <Project />
               <Skills />
-              <Contact 
-                name={name}
-                email={email}
-                password={password}
-                setName={setName}
-                setEmail={setEmail}
-                setPassword={setPassword}
-                handleSubmit={handleSubmit}
-              />
-            </>
-          } />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Routes>
-      </main>
-      
-      <Footer />
+              <Blog />
+              <Contact />
+            </main>
+            
+            <Footer />
+          </>
+        } />
+      </Routes>
     </ThemeProvider>
   );
 }

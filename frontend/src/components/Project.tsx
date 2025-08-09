@@ -1,34 +1,21 @@
+// frontend/src/components/Project.tsx
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
+import axios from 'axios';
 
-const projects = [
-  {
-    title: "Student Mentoring System",
-    description: "A university-based mentoring system developed using HTML, CSS, MongoDB, Node.js, Docker, and AWS ECS.",
-    technologies: ["HTML", "CSS", "MongoDB", "Node.js", "Docker", "AWS EC2"],
-    githubLink: "https://github.com/SAFAL-MONDAL/Mentoring_Website",
-    liveLink: "https://std-mentoring-edu.netlify.app/",
-    image: "/mentoring.webp"
-  },
-  {
-    title: "Chatbot (Bongo ai)",
-    description: "Developed a responsive AI chatbot leveraging HTML, CSS, JavaScript, and integrated with the Gemini API.",
-    technologies: ["HTML", "CSS", "JavaScipt","Gemini API key"],
-    githubLink: "https://github.com/SAFAL-MONDAL/SAFAL-AI",
-    liveLink: "https://safal-ai.vercel.app/",
-    image: "/chatbot.avif"
-  },
-  {
-    title: "University-Based Intern Portal",
-    description: "An intern portal for universities developed using MongoDB, Express.js, Node.js, and React.js.",
-    technologies: ["MongoDB", "Express.js", "Node.js", "React.js","Rest API"],
-    githubLink: "https://github.com/SAFAL-MONDAL/Internship_Portal",
-    liveLink: "https://yourwebsite.com/university-intern-portal",
-    image: "/internship.webp"
-  }
-  
-];
+type Project = {
+  _id: string;
+  title: string;
+  description: string;
+  technologies: string[];
+  githubLink?: string;
+  liveLink?: string;
+  image: string;
+  featured: boolean;
+  order: number;
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -52,6 +39,47 @@ const itemVariants = {
 };
 
 const Project = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio-backend.onrender.com';
+        const response = await axios.get(`${baseUrl}/api/projects`);
+        setProjects(response.data.projects);
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        setError('Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <PortfolioSection id="projects">
+        <div className="container">
+          <LoadingText>Loading projects...</LoadingText>
+        </div>
+      </PortfolioSection>
+    );
+  }
+
+  if (error) {
+    return (
+      <PortfolioSection id="projects">
+        <div className="container">
+          <ErrorText>{error}</ErrorText>
+        </div>
+      </PortfolioSection>
+    );
+  }
+
   return (
     <PortfolioSection id="projects">
       <div className="container">
@@ -76,7 +104,7 @@ const Project = () => {
         >
           {projects.map((project, index) => (
             <ProjectCard 
-              key={index}
+              key={project._id}
               variants={itemVariants}
               whileHover={{ y: -10 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -93,9 +121,11 @@ const Project = () => {
                   whileHover={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ViewProjectButton as="a" href={project.liveLink} target="_blank" rel="noopener noreferrer">
-                    View Project <FaArrowRight />
-                  </ViewProjectButton>
+                  {project.liveLink && (
+                    <ViewProjectButton as="a" href={project.liveLink} target="_blank" rel="noopener noreferrer">
+                      View Project <FaArrowRight />
+                    </ViewProjectButton>
+                  )}
                 </ProjectOverlay>
               </ProjectImageContainer>
               
@@ -148,6 +178,20 @@ const PortfolioSection = styled.section`
   background: ${({ theme }) => theme.body};
   position: relative;
   overflow: hidden;
+`;
+
+const LoadingText = styled.p`
+  text-align: center;
+  color: ${({ theme }) => theme.text};
+  font-size: 1.2rem;
+  padding: 60px 0;
+`;
+
+const ErrorText = styled.p`
+  text-align: center;
+  color: #FF3333;
+  font-size: 1.2rem;
+  padding: 60px 0;
 `;
 
 const Highlight = styled.span`
@@ -222,8 +266,7 @@ const ProjectCard = styled(motion.div)`
 const ProjectImageContainer = styled.div`
   position: relative;
   overflow: hidden;
-   height: 40%;
-  widith: 100%;
+  height: 250px;
 `;
 
 const ProjectImage = styled(motion.img)`

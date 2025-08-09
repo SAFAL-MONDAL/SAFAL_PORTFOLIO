@@ -1,7 +1,7 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "description": "Portfoli_backend",
+  "version": "2.0.0",
+  "description": "Enhanced Portfolio Backend with Admin Controls",
   "homepage": "https://github.com/SAFAL-MONDAL/SAFAL_PORTFOLIO#readme",
   "bugs": {
     "url": "https://github.com/SAFAL-MONDAL/SAFAL_PORTFOLIO/issues"
@@ -11,12 +11,14 @@
     "url": "git+https://github.com/SAFAL-MONDAL/SAFAL_PORTFOLIO.git"
   },
   "license": "ISC",
-  "author": "SAFAL",
+  "author": "SAFAL MONDAL",
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seed.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -24,6 +26,13 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.17.0"
+    "mongoose": "^8.17.0",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
