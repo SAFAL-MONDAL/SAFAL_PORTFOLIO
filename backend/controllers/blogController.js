@@ -6,7 +6,6 @@ export const getAllBlogs = async (req, res) => {
   try {
     const { published } = req.query;
     const filter = published === 'true' ? { published: true } : {};
-    
     const blogs = await Blog.find(filter).sort({ createdAt: -1 });
     res.json({ 
       success: true,
