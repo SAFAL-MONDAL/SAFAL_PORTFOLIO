@@ -24,7 +24,7 @@ const Blog = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const baseUrl = import.meta.env. || 'https://safal-portfolio-backend.onrender.com';
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio.onrender.com/';
         const response = await axios.get(`${baseUrl}/api/blogs?published=true`);
         setBlogs(response.data.blogs);
       } catch (err) {
