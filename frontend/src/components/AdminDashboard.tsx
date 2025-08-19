@@ -426,7 +426,7 @@ const AdminDashboard = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio-backend.onrender.com';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio.onrender.com/';
 
   const getAuthHeaders = () => ({
     'x-auth-token': localStorage.getItem('adminToken'),

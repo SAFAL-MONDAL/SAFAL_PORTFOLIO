@@ -34,7 +34,7 @@ const Contact = () => {
 
     try {
       // Improved URL construction
-      let baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio-backend.onrender.com';
+      let baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio.onrender.com/';
       if (!baseUrl.endsWith('/')) {
         baseUrl += '/';
       }

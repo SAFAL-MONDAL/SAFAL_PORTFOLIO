@@ -46,7 +46,7 @@ const Project = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio-backend.onrender.com';
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://safal-portfolio.onrender.com/';
         const response = await axios.get(`${baseUrl}/api/projects`);
         setProjects(response.data.projects);
       } catch (err) {
