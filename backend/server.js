@@ -173,12 +173,17 @@ app.use((req, res) => {
   });
 });
 
-// ✅ Graceful shutdown for Render & local dev
+// ✅ Fixed graceful shutdown for Render & local dev
 const shutdown = async () => {
   console.log("Shutting down gracefully...");
   try {
-    await mongoose.connection.close();
-    console.log("✅ Database connection closed.");
+    // Check connection state before attempting to close
+    if (mongoose.connection.readyState === 1) { // 1 = connected
+      await mongoose.connection.close();
+      console.log("✅ Database connection closed.");
+    } else {
+      console.log("✅ Database connection already closed or not connected.");
+    }
     process.exit(0);
   } catch (err) {
     console.error("❌ Error closing database connection:", err);
