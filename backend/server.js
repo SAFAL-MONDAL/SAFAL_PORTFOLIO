@@ -10,9 +10,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// DEBUG: Add route debugging before importing route files
+// Route debugging setup
 const originalMethods = ["get", "post", "put", "delete", "patch", "use", "all"];
-
 originalMethods.forEach((method) => {
   if (app[method]) {
     const original = app[method];
@@ -32,7 +31,7 @@ originalMethods.forEach((method) => {
   }
 });
 
-// Import route files AFTER setting up debugging
+// Import routes AFTER debugging setup
 console.log("📁 Importing contactRoutes...");
 import contactRoutes from "./routes/contactRoutes.js";
 console.log("📁 Importing authRoutes...");
@@ -41,21 +40,16 @@ console.log("📁 Importing projectRoutes...");
 import projectRoutes from "./routes/projectRoutes.js";
 console.log("📁 Importing blogRoutes...");
 import blogRoutes from "./routes/blogRoutes.js";
+
 // Enhanced CORS configuration
-
-app.use(cors());
-
-// Handle preflight requests
-// app.options("*", cors(corsOptions));
-// Middleware
 app.use(
   cors({
-      origin: [
-    "https://safalportfolio.vercel.app",
-    "https://safalportfolio-9cm582463-safal-mondals-projects.vercel.app",
-    "http://localhost:3000",
-    "http://localhost:5173",
-  ],
+    origin: [
+      "https://safalportfolio.vercel.app",
+      "https://safalportfolio-9cm582463-safal-mondals-projects.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -69,7 +63,6 @@ connectDB();
 const createCollections = async () => {
   try {
     const db = mongoose.connection.db;
-
     const collections = ["admins", "messages", "projects", "blogs"];
 
     for (const collectionName of collections) {
@@ -111,15 +104,11 @@ app.get("/", (req, res) => {
   });
 });
 
-// Routes - Order matters!
+// Routes setup
 console.log("🛣️  Setting up routes...");
-console.log("Setting up /api/contact routes...");
 app.use("/api/contact", contactRoutes);
-console.log("Setting up /api/contact auth routes...");
 app.use("/api/contact", authRoutes);
-console.log("Setting up /api/projects routes...");
 app.use("/api/projects", projectRoutes);
-console.log("Setting up /api/blogs routes...");
 app.use("/api/blogs", blogRoutes);
 
 // Diagnostic endpoint
@@ -184,22 +173,21 @@ app.use((req, res) => {
   });
 });
 
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received, shutting down gracefully");
-  mongoose.connection.close(() => {
-    console.log("Database connection closed.");
+// ✅ Graceful shutdown for Render & local dev
+const shutdown = async () => {
+  console.log("Shutting down gracefully...");
+  try {
+    await mongoose.connection.close();
+    console.log("✅ Database connection closed.");
     process.exit(0);
-  });
-});
+  } catch (err) {
+    console.error("❌ Error closing database connection:", err);
+    process.exit(1);
+  }
+};
 
-process.on("SIGINT", () => {
-  console.log("SIGINT received, shutting down gracefully");
-  mongoose.connection.close(() => {
-    console.log("Database connection closed.");
-    process.exit(0);
-  });
-});
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
