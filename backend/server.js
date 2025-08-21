@@ -51,7 +51,6 @@ app.use(cors());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || [
-      "http://localhost:5173",
       "https://safalportfolio.vercel.app",
     ],
     credentials: true,
@@ -209,7 +208,7 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
   console.log(
     `📡 CORS enabled for: ${
-      process.env.FRONTEND_URL || "http://localhost:5173, https://safalportfolio.vercel.app"
+      process.env.FRONTEND_URL || "https://safalportfolio.vercel.app"
     }`
   );
   console.log(`🔗 API Documentation: http://localhost:${PORT}/`);
