@@ -87,8 +87,8 @@ const seedDatabase = async () => {
     const adminExists = await Admin.findOne({ username: 'admin' });
     if (!adminExists) {
       const admin = new Admin({
-        username: 'admin',
-        password: 'Safal_1234'
+        username: 'safal999',
+        password: 'password'
       });
       await admin.save();
       console.log('✅ Admin created successfully');

@@ -50,9 +50,12 @@ app.use(cors());
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || [
-      "https://safalportfolio.vercel.app",
-    ],
+      origin: [
+    "https://safalportfolio.vercel.app",
+    "https://safalportfolio-9cm582463-safal-mondals-projects.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+  ],
     credentials: true,
   })
 );
